@@ -1,0 +1,40 @@
+# Golang CircleCI 2.0 configuration file
+# Check https://circleci.com/docs/2.0/language-go/ for more details
+version: 2
+jobs:
+  build:
+    docker:
+      # specify the version
+      - image: circleci/golang:1.10
+      
+      # Specify service dependencies here if necessary
+      # CircleCI maintains a library of pre-built images
+      # documented at https://circleci.com/docs/2.0/circleci-images/
+      # - image: circleci/postgres:9.4
+
+    #### TEMPLATE_NOTE: go expects specific checkout path representing url
+    #### expecting it in the form of
+    ####   /go/src/github.com/circleci/go-tool
+    ####   /go/src/bitbucket.org/circleci/go-tool
+    working_directory: /go/src/github.com/thundercore/thunder
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run: sudo apt-get update && sudo apt-get install python3 python3-pip
+      - run: 
+          name: Python dependencies
+          command: |
+              pip3 install --user web3 docker pylint
+              
+              pip3 install --user py-solc
+              # Version linked to the PATH in Makefile.
+              python3 -m solc.install v0.4.24
+
+              #Install multiprocessing-logging used by ColdBrew
+              pip3 install --user multiprocessing-logging
+
+              # Install modules for Selenium testing.
+              pip3 install --user selenium pytest
+
+      # specify any bash command here prefixed with `run: `
+      - run: docker pull hwchiu/netutils
